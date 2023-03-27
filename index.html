@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDS</title>
+    <style>
+    @font-face {
+        font-family: 'james';
+        src: url('font/james811.ttf');
+    }
+    #useFont {
+        font-family: 'james';
+        font-size: 0px;
+    }
+    </style>
+    <script src="js/pixi.min.js"></script>
+    <script>
+        //let brimSheet = createPlayerSheet("images/tankSheetBlue.png");
+        //let reynaSheet = createPlayerSheet("images/tankSheetBlue.png");
+        //let omenSheet = createPlayerSheet("images/dpsSheetBlue.png");
+        //let currentHealth;
+        let app;
+        let b = true;
+        let mainScreen;
+        let brim;
+        let reyna;
+        let omen;
+        let rein;
+        let ana;
+        let tracer;
+        let sprite;
+        let vWall1;
+        let vWall2;
+        let hWall1;
+        let hWall2;
+        let hWall3;
+        let hWall4;
+        let vWall3;
+        let vWall4;
+        let vWall5;
+        let vWall6;
+        let vWall7;
+        let vWall8;
+        let vWall9;
+        let vWall10;
+        let testArray = ['chicken', 'BAKAW!'];
+        let sprites = [];
+        let texts = [];
+        let keys = {};
+        let playerSheet = {};
+        let bullets = [];
+        let bulletSpeed = 5;
+        let collisionCheck = 0;
+        let wait = false;
+        let playerTeam = "red" //This will update at the start of the game depending on which team the player is on
+
+        window.onload = function () {
+            app = new PIXI.Application(
+                {
+                    width: 800,
+                    height: 2000,
+                    backgroundColor: 0xff99df
+                }
+            );
+
+            
+
+            document.querySelector("#gameDiv").appendChild(app.view);
+            app.stage.interactive = true;
+
+            mainScreen = new PIXI.Container();
+            app.stage.addChild(mainScreen);
+
+            //currentHealth = createText("100/100", 2, 100, "james");
+
+            document.querySelector("#gameDiv").addEventListener("pointerdown", fireBullet);
+
+            //Making an instance of the sprite
+            brim = createAnimatedSpriteByPixel("images/tankSheetBlue.png", 400, 1750, "blue");
+
+            //Making an instance of the sprite
+            reyna = createAnimatedSpriteByPixel("images/supportSheetBlue.png", 266, 1700, "blue");
+            //reyna.name = "reyna";
+            //reyna = createSprite("images/supportSpriteBlue.png", 3, 4, "blue");
+            //reyna.setTexture = "images/supportSpriteRed.png"
+
+            //Making an instance of the sprite
+            omen = createAnimatedSpriteByPixel("images/damageSheetBlue.png", 600, 1700, "blue");
+
+            //Making an instance of the sprite
+            rein = new PIXI.Sprite.from("images/tankSpriteRed.png");
+            rein.anchor.set(0.5);
+            rein.x = 400;
+            rein.y = 1850;
+            rein.up = true;
+            rein.left = true;
+            rein.down = true;
+            rein.right = true;
+            rein.team = "red";
+
+            mainScreen.addChild(rein);
+
+            ana = createSpriteByPixel("images/supportSpriteRed.png", 600, 1900, "red");
+
+            //Making an instance of the sprite
+            tracer = createSpriteByPixel("images/damageSpriteRed.png", 266, 1900, "red");
+
+            vWall1 = createSpriteByPixel("images/verticalwall.png", 180, 492, "wall");
+            vWall2 = createSpriteByPixel("images/verticalwall.png", 640, 492, "wall");
+
+            hWall1 = createSpriteByPixel("images/horizontalWall.png", 253, 192, "wall");
+            hWall2 = createSpriteByPixel("images/horizontalWall.png", 566, 192, "wall");
+
+            hWall3 = createSpriteByPixel("images/horizontalWall120.png", 120, 242, "wall");
+            hWall4 = createSpriteByPixel("images/horizontalWall120.png", 699, 242, "wall");
+
+            vWall3 = createSpriteByPixel("images/verticalWall.png", 180, 1808, "wall");
+            vWall4 = createSpriteByPixel("images/verticalWall.png", 640, 1808, "wall");
+
+            vWall5 = createSpriteByPixel("images/verticalWall.png", 180, 1400, "wall");
+            vWall6 = createSpriteByPixel("images/verticalWall.png", 640, 1400, "wall");
+
+            vWall7 = createSpriteByPixel("images/verticalWall.png", 180, 900, "wall");
+            vWall8 = createSpriteByPixel("images/verticalWall.png", 640, 900, "wall");
+
+            //vWall9 = createSpriteByPixel("images/verticalWall.png", 180, 400, "wall");
+            //vWall10 = createSpriteByPixel("images/verticalWall.png", 640, 400, "wall");
+
+            //Keyboard event handlers
+            window.addEventListener("keydown", keysDown);
+            window.addEventListener("keyup", keysUp);
+
+            app.ticker.minFPS = 30;
+            app.ticker.maxFPS = 60;
+
+            app.ticker.add(gameLoop);
+        }
+
+        function keysDown(e) {
+            //console.log(e.keycode);
+            /*
+            w = 87
+            a = 65
+            s = 83
+            d = 68
+            e = 69
+            */
+            
+            keys[e.keyCode] = true;
+
+        }
+
+        function keysUp(e) {
+            //console.log(e.keycode);
+
+            keys[e.keyCode] = false;
+
+        }
+
+
+        function gameLoop() {
+
+            //world.position.set(app.screen.width/2, app.screen.height/2);
+            //world.scale.set(whatever you want)
+            //world.rotation = some_rotation
+
+            //console.log("rein.up = " + rein.up);
+
+            // W
+            if(keys["87"] && rein.up) {
+                rein.y -= 2;
+            }
+            // A
+            if(keys["65"] && rein.left) {
+                rein.x -= 2;
+            }
+            // S
+            if(keys["83"] && rein.down) {
+                rein.y += 2;
+            }
+            // D
+            if(keys["68"] && rein.right) {
+                rein.x += 2;
+            }
+            //P
+            if(keys["80"])
+            {
+                //console.log("bBox.x = " + brim.getBounds().x);
+                //console.log("bBox.y = " + brim.getBounds().y);
+                //console.log("bBox.width = " + brim.getBounds().width);
+                //console.log("bBox.height = " + brim.getBounds().height);
+                console.log("Mainscreen.position.x = " + mainScreen.position.x)
+                console.log("Mainscreen.position.y = " + mainScreen.position.y)
+                console.log("rein.x = " + rein.x)
+                console.log("rein.y = " + rein.y)
+            }
+            //E
+            if(keys["69"])
+            {
+                //console.log("aBox.y = " + rein.getBounds().y);
+                let i = 0;
+                let l = sprites.length;
+                while(i<l)
+                {
+                    console.log(sprites[i]);
+                    i++;
+                }
+            }
+            //Q
+            if(keys["81"])
+            {
+                console.log("aBox.x = " + rein.getBounds().x);
+            }
+            //console.log("Gameloop");
+            //console.log("rein position 1: " + rein.y);
+            
+            mainScreen.position.x = (rein.x - app.view.width / 2) * -1;
+            mainScreen.position.y = (rein.y - app.view.width / 2) * -1;
+            
+            
+            //mainScreen.pivot.x = rein.x;
+            //mainScreen.pivot.y = rein.y;
+
+            //console.log("rein position 2: " + rein.y);
+
+            updateBullets();
+            anyIntersect(rein);
+            checkBulletCollision();
+            updateInvuln();
+        }
+
+        function disableMovement(check)
+        {
+            switch(check)
+                {
+                    case 1:
+                        rein.left = false;
+                        rein.x += collisionCheck;
+                        break;
+                    case 2:
+                        rein.right = false;
+                        rein.x -= collisionCheck;
+                        break;
+                    case 3:
+                        rein.up = false;
+                        rein.y += collisionCheck;
+                        break;
+                    case 4:
+                        rein.down = false;
+                        rein.y -= collisionCheck;
+                }
+        }
+
+        function updateInvuln()
+        {
+            let i = 0;
+            let l = sprites.length;
+
+            while(i<l)
+            {
+                if(sprites[i].invuln == 1)
+                {
+                    sprites[i].textures = sprites[i].sheet.regularSprite;
+                    console.log("We updatin invuln yo");
+                }
+                    
+                if(sprites[i].invuln > 0)
+                {
+                    sprites[i].invuln -= 1;
+                }
+                    
+
+                    //console.log("We updatin invuln yo");
+                i++;
+            }
+        }
+
+        function changeFlag(flag)
+        {
+            if(flag == true)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        function sleep(ms) 
+        {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+       
+
+    </script>
+</head>
+<body>
+
+    <div id = "useFont">We need this to load the font for some reason</div>
+
+    <div id = "gameDiv" style = "border: 2px solid red;"></div>
+
+    <script src="intersections.js">
+    </script>
+
+    <script src="createSprites.js">
+    </script>
+
+    <script src="bullets.js">
+    </script>
+    
+</body>
+</html>
