@@ -30,6 +30,8 @@
         let rein;
         let ana;
         let tracer;
+        let pistol;
+        let fishingRod;
         let sprite;
         let vWall1;
         let vWall2;
@@ -45,6 +47,7 @@
         let vWall8;
         let vWall9;
         let vWall10;
+        let inventory = [];
         let testArray = ['chicken', 'BAKAW!'];
         let sprites = [];
         let texts = [];
@@ -71,11 +74,19 @@
             app.stage.interactive = true;
 
             mainScreen = new PIXI.Container();
+            mainScreen.interactive = true;
             app.stage.addChild(mainScreen);
 
             //currentHealth = createText("100/100", 2, 100, "james");
 
-            document.querySelector("#gameDiv").addEventListener("pointerdown", fireBullet);
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////// Okay so I need to change this so that it calls a function that gathers context and chooses an appropriate action e.g. /////////////////////
+            ///////// picking up a fish if I am close to the lake or firing a bullet if I have a gun /////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            document.querySelector("#gameDiv").addEventListener("pointerdown", fireBullet); //////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            //mainScreen.on('mousedown', fireBullet);
 
             //Making an instance of the sprite
             brim = createAnimatedSpriteByPixel("images/tankSheetBlue.png", 400, 1750, "blue");
@@ -102,10 +113,14 @@
 
             mainScreen.addChild(rein);
 
-            ana = createSpriteByPixel("images/supportSpriteRed.png", 600, 1900, "red");
+            //ana = createSpriteByPixel("images/supportSpriteRed.png", 600, 1900, "red");
+            fishingRod = createSpriteByPixel("images/fishingRod.png", 600, 1900, "pickup");
+            fishingRod.name = "fishingRod";
 
             //Making an instance of the sprite
-            tracer = createSpriteByPixel("images/damageSpriteRed.png", 266, 1900, "red");
+            //tracer = createSpriteByPixel("images/damageSpriteRed.png", 266, 1900, "red");
+            pistol = createSpriteByPixel("images/gun.png", 266, 1900, "pickup");
+            pistol.name = "pistol";
 
             vWall1 = createSpriteByPixel("images/verticalwall.png", 180, 492, "wall");
             vWall2 = createSpriteByPixel("images/verticalwall.png", 640, 492, "wall");
@@ -263,7 +278,7 @@
                 if(sprites[i].invuln == 1)
                 {
                     sprites[i].textures = sprites[i].sheet.regularSprite;
-                    console.log("We updatin invuln yo");
+                    //console.log("We updatin invuln yo");
                 }
                     
                 if(sprites[i].invuln > 0)
@@ -292,6 +307,19 @@
         function sleep(ms) 
         {
             return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // function to decide what is done (if anything) when the player clicks the mouse
+        function clickContext()
+        {
+            
+        }
+
+        function pickup(item)
+        {
+            inventory.push(item);
+            mainScreen.removeChild(item);
+            console.log("I have " + inventory[0].name + " in my inventory now!");
         }
 
        

@@ -35,7 +35,7 @@ function createSpriteByPixel(image, x, y, wTeam)
     sprite.health = 100;
     sprite.invuln = 0;
     sprite.team = wTeam;
-    console.log("I am " + sprite.team + " team!");
+    //console.log("I am " + sprite.team + " team!");
     sprites.push(sprite);
 
     mainScreen.addChild(sprite);
@@ -49,7 +49,7 @@ function createSpriteByPixel(image, x, y, wTeam)
 function createAnimatedSprite(image, x, y, wTeam)
 {
     let poSheet = createPlayerSheet(image);
-    console.log("poSheet = " + poSheet.regularSprite);
+    //console.log("poSheet = " + poSheet.regularSprite);
     sprite = new PIXI.AnimatedSprite(poSheet.regularSprite);
     sprite.anchor.set(0.5);
     sprite.animationSpeed = 0.04;
@@ -70,7 +70,7 @@ function createAnimatedSprite(image, x, y, wTeam)
 function createAnimatedSpriteByPixel(image, x, y, wTeam)
 {
     let poSheet = createPlayerSheet(image);
-    console.log("poSheet = " + image.naturalHeight);
+    //console.log("poSheet = " + image.naturalHeight);
     sprite = new PIXI.AnimatedSprite(poSheet.regularSprite);
     sprite.anchor.set(0.5);
     sprite.animationSpeed = 0.04;

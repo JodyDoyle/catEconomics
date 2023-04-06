@@ -79,8 +79,16 @@ function anyIntersect(player)
     {
         if(spritesIntersect(player,sprites[i]))
         {
-            disableMovement(whichIntersect(player,sprites[i]))
-            b = false;
+            if(sprites[i].team == "pickup")
+            {
+                pickup(sprites[i]);
+            }
+            else
+            {
+                disableMovement(whichIntersect(player,sprites[i]))
+                b = false;
+            }
+            
         }
         i++;
     }
@@ -107,7 +115,7 @@ function checkBulletCollision()
         {
             if(spritesIntersect(bullets[i],sprites[j]) && sprites[j].invuln <= 0 && bullets[i].team != sprites[j].team)
             {
-                console.log("A bullet hit " + i);
+                //console.log("A bullet hit " + i);
                 //console.log("The bullet's team was " + bullets[i].team);
                 // Need to add invulnerability frames and deprecate health and check for death when a sprite is hit by a bullet
                 // Need to also check if the sprite is friend or foe when checking if the sprite should take damage
@@ -123,7 +131,7 @@ function checkBulletCollision()
                     //console.log((playerSheet));
                     sprites[j].textures = sprites[j].sheet.invulnerable;
                     sprites[j].play();
-                    console.log(sprites[j].health);
+                    //console.log(sprites[j].health);
                     //checkForDeath(sprites[j]);
                 }
                 
