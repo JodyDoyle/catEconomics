@@ -23,6 +23,9 @@
         //let currentHealth;
         let app;
         let b = true;
+        let tt = false;
+        let clickLock = false;
+        let ttime = 200;
         let mainScreen;
         let brim;
         let reyna;
@@ -30,8 +33,11 @@
         let rein;
         let ana;
         let tracer;
+        let topText;
         let pistol;
         let fishingRod;
+        let inventoryImage;
+        let currentItem;
         let sprite;
         let vWall1;
         let vWall2;
@@ -47,16 +53,21 @@
         let vWall8;
         let vWall9;
         let vWall10;
+        let water;
         let inventory = [];
         let testArray = ['chicken', 'BAKAW!'];
         let sprites = [];
+        let uiSprites = [];
         let texts = [];
         let keys = {};
         let playerSheet = {};
         let bullets = [];
-        let bulletSpeed = 5;
+        let bulletSpeed = 6;
+        let playerSpeed = 3;
         let collisionCheck = 0;
+        let uptime;
         let wait = false;
+        let switchedWeapons = false;
         let playerTeam = "red" //This will update at the start of the game depending on which team the player is on
 
         window.onload = function () {
@@ -83,12 +94,14 @@
             ////////// Okay so I need to change this so that it calls a function that gathers context and chooses an appropriate action e.g. /////////////////////
             ///////// picking up a fish if I am close to the lake or firing a bullet if I have a gun /////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            document.querySelector("#gameDiv").addEventListener("pointerdown", fireBullet); //////////////////////////////////////////////////////////////////////
+            document.querySelector("#gameDiv").addEventListener("pointerdown", clickContext); //////////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             //mainScreen.on('mousedown', fireBullet);
 
             //Making an instance of the sprite
+            
+
             brim = createAnimatedSpriteByPixel("images/tankSheetBlue.png", 400, 1750, "blue");
 
             //Making an instance of the sprite
@@ -116,12 +129,31 @@
             //ana = createSpriteByPixel("images/supportSpriteRed.png", 600, 1900, "red");
             fishingRod = createSpriteByPixel("images/fishingRod.png", 600, 1900, "pickup");
             fishingRod.name = "fishingRod";
+            fishingRod.type = "fishingRod";
+            fishingRod.image = "images/fishingRod.png";
+            fishingRod.smallImage = "images/fishingRodSmall.png";
 
             //Making an instance of the sprite
             //tracer = createSpriteByPixel("images/damageSpriteRed.png", 266, 1900, "red");
             pistol = createSpriteByPixel("images/gun.png", 266, 1900, "pickup");
             pistol.name = "pistol";
+            pistol.type = "gun";
+            pistol.image = "images/gun.png";
+            pistol.smallImage = "images/gunSmall.png";
 
+            water = createSpriteByPixel("images/water.png", 600, 1000, "wall");
+            water.type = "water";
+
+
+            iventoryImage = createSpriteByPixel("images/inventory.png", rein.x, rein.y + 400, "UI");
+
+            currentItem = createSpriteByPixel("images/currentItem.png", rein.x + 250, rein.y + 400, "UI");
+
+            //smallGun = createSpriteByPixel("images/gunSmall.png", rein.x + 252, rein.y + 400, "UI");
+
+
+
+            /*
             vWall1 = createSpriteByPixel("images/verticalwall.png", 180, 492, "wall");
             vWall2 = createSpriteByPixel("images/verticalwall.png", 640, 492, "wall");
 
@@ -139,6 +171,7 @@
 
             vWall7 = createSpriteByPixel("images/verticalWall.png", 180, 900, "wall");
             vWall8 = createSpriteByPixel("images/verticalWall.png", 640, 900, "wall");
+            */
 
             //vWall9 = createSpriteByPixel("images/verticalWall.png", 180, 400, "wall");
             //vWall10 = createSpriteByPixel("images/verticalWall.png", 640, 400, "wall");
@@ -185,19 +218,19 @@
 
             // W
             if(keys["87"] && rein.up) {
-                rein.y -= 2;
+                rein.y -= playerSpeed;
             }
             // A
             if(keys["65"] && rein.left) {
-                rein.x -= 2;
+                rein.x -= playerSpeed;
             }
             // S
             if(keys["83"] && rein.down) {
-                rein.y += 2;
+                rein.y += playerSpeed;
             }
             // D
             if(keys["68"] && rein.right) {
-                rein.x += 2;
+                rein.x += playerSpeed;
             }
             //P
             if(keys["80"])
@@ -216,17 +249,27 @@
             {
                 //console.log("aBox.y = " + rein.getBounds().y);
                 let i = 0;
-                let l = sprites.length;
+                let l = inventory.length;
                 while(i<l)
                 {
-                    console.log(sprites[i]);
+                    console.log("inventory " + i + " is " + inventory[i]);
                     i++;
                 }
             }
             //Q
             if(keys["81"])
             {
-                console.log("aBox.x = " + rein.getBounds().x);
+                //mainScreen.removeChild(inventory[0].smallChild);
+                //console.log("inventory[0].smallChild.team = " + inventory[0].smallChild.team);
+                let tempx = inventory[0].smallChild.x
+                inventory[0].smallChild.x = inventory[1].smallChild.x;
+                inventory[1].smallChild.x = tempx;
+            }
+            //R
+            if(keys["82"])
+            {
+                console.log(inventory[0].name);
+                //console.log("aBox.x = " + rein.getBounds().x);
             }
             //console.log("Gameloop");
             //console.log("rein position 1: " + rein.y);
@@ -240,55 +283,28 @@
 
             //console.log("rein position 2: " + rein.y);
 
-            updateBullets();
-            anyIntersect(rein);
-            checkBulletCollision();
-            updateInvuln();
+            doUpdates();
         }
 
         function disableMovement(check)
         {
             switch(check)
-                {
-                    case 1:
-                        rein.left = false;
-                        rein.x += collisionCheck;
-                        break;
-                    case 2:
-                        rein.right = false;
-                        rein.x -= collisionCheck;
-                        break;
-                    case 3:
-                        rein.up = false;
-                        rein.y += collisionCheck;
-                        break;
-                    case 4:
-                        rein.down = false;
-                        rein.y -= collisionCheck;
-                }
-        }
-
-        function updateInvuln()
-        {
-            let i = 0;
-            let l = sprites.length;
-
-            while(i<l)
             {
-                if(sprites[i].invuln == 1)
-                {
-                    sprites[i].textures = sprites[i].sheet.regularSprite;
-                    //console.log("We updatin invuln yo");
-                }
-                    
-                if(sprites[i].invuln > 0)
-                {
-                    sprites[i].invuln -= 1;
-                }
-                    
-
-                    //console.log("We updatin invuln yo");
-                i++;
+                case 1:
+                    rein.left = false;
+                    rein.x += collisionCheck;
+                    break;
+                case 2:
+                    rein.right = false;
+                    rein.x -= collisionCheck;
+                    break;
+                case 3:
+                    rein.up = false;
+                    rein.y += collisionCheck;
+                    break;
+                case 4:
+                    rein.down = false;
+                    rein.y -= collisionCheck;
             }
         }
 
@@ -304,22 +320,190 @@
             }
         }
 
+        function getInventoryCoords(x)
+        {
+            let xadjustment = 0;
+            let yadjustment = 0;
+            // W
+            if(keys["87"] && rein.up) {
+                yadjustment += playerSpeed;
+            }
+            // A
+            if(keys["65"] && rein.left) {
+                xadjustment += playerSpeed;
+            }
+            // S
+            if(keys["83"] && rein.down) {
+                yadjustment -= playerSpeed;
+            }
+            // D
+            if(keys["68"] && rein.right) {
+                xadjustment -= playerSpeed;
+            }
+            switch(x)
+            {
+                case "y": 
+                    return rein.y + 400 + yadjustment;
+                    break;
+                case 0:
+                    return rein.x + 250 + xadjustment;
+                    break;
+                case 1:
+                    return rein.x - 142 + xadjustment;
+                    break;
+                case 2:
+                    return rein.x - 110 + xadjustment;
+                    break;
+                case 3:
+                    return rein.x - 78 + xadjustment;
+                    break;
+                case 4:
+                    return rein.x - 46 + xadjustment;
+                    break;
+                case 5:
+                    return rein.x - 14 + xadjustment;
+                    break;
+                case 6:
+                    return rein.x + 18 + xadjustment;
+                    break;
+                case 7:
+                    return rein.x + 50 + xadjustment;
+                    break;
+                case 8:
+                    return rein.x + 82 + xadjustment;
+                    break;
+                case 9:
+                    return rein.x + 116 + xadjustment;
+                    break;
+                case 10:
+                    return rein.x + 148 + xadjustment;
+                    break;
+                default:
+                    return 0;
+            }
+        }
+
         function sleep(ms) 
         {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
         // function to decide what is done (if anything) when the player clicks the mouse
-        function clickContext()
+        function clickContext(e)
         {
+            console.log("ClickContext");
+            // I will move the item that the cat currently has equiped to inventory[0], so that can always be used
+            // to retrieve the currently equiped item
+            if(typeof inventory[0] != "undefined" && !clickLock)
+            {
+                if(inventory[0].name == "pistol")
+                {
+                    fireBullet(e);
+                }
+                else if(inventory[0].type == "fishingRod")
+                {
+                    fish();
+                }
+            }
+            else
+            {
+                topText = activateTopText("TOP TEXT", 120, "james");
+            }
             
+        }
+
+        async function fish()
+        {
+            console.log("We are in the fish function!");
+            let i = 0;
+            let l = sprites.length;
+            let b = true;
+
+            while(i<l)
+            {
+                if(spritesIntersect(rein,sprites[i]))
+                {
+                    if(sprites[i].type == "water")
+                    {
+                        console.log("We are in the roots of the fish!");
+                        // Fish!
+                        // Lock movement
+                        lockMovement();
+                        // Wait a couple of seconds
+                        topText = activateTopText("Fishing...", 120, "james");
+                        await sleep(2000);
+
+                        
+                        // Eventually add a timing based mechanic to catch a fish and a fishing animation
+                        // Roll a random number, 30% chance of common fish, 20% chance of one of the rarer fish, each with unique attributes,
+                        // and 10% chance of the super rare fish which all merchants will buy for a high price
+                        let rand = Math.random() * 10;
+                        if(rand < 1)
+                        {
+                            topText = activateTopText("You caught a Rainbow Fish!", 200, "james");
+                            inventory.push("Rainbow Fish");
+                        }
+                        else if(rand < 3)
+                        {
+                            topText = activateTopText("You caught a Catfish!", 200, "james");
+                            inventory.push("Catfish");
+                        }
+                        else if(rand < 5)
+                        {
+                            topText = activateTopText("You caught an Eel!", 200, "james");
+                            inventory.push("Eel");
+                        }
+                        else if(rand < 7)
+                        {
+                            topText = activateTopText("You caught a Zander!", 200, "james");
+                            inventory.push("Zander");
+                        }
+                        else
+                        {
+                            topText = activateTopText("You caught a Trout!", 200, "james");
+                            inventory.push("Trout");
+                        }
+
+                        unlockMovement();
+
+
+                    }
+                    else
+                    {
+                        // Do nothing
+                    }
+            
+                }
+                i++;
+            }
+        }
+
+        function lockMovement()
+        {
+            rein.up = false;
+            rein.down = false;
+            rein.left = false;
+            rein.right = false;
+            clickLock = true;
+        }
+
+        function unlockMovement()
+        {
+            rein.up = true;
+            rein.down = true;
+            rein.left = true;
+            rein.right = true;
+            clickLock = false;
         }
 
         function pickup(item)
         {
+            var l = inventory.length;
             inventory.push(item);
+            createSpriteByPixel(item.smallImage, getInventoryCoords(l), getInventoryCoords("y"), "UI");
+            item.smallChild = uiSprites[uiSprites.length-1];
             mainScreen.removeChild(item);
-            console.log("I have " + inventory[0].name + " in my inventory now!");
+            //console.log("I have " + inventory[0].name + " in my inventory now!");
         }
 
        
@@ -339,6 +523,9 @@
     </script>
 
     <script src="bullets.js">
+    </script>
+
+    <script src="updates.js">
     </script>
     
 </body>

@@ -17,7 +17,7 @@ function fireBullet(e)
 
     //console.log("Xratio is: " + Xratio)
     //console.log("Yratio is: " + Yratio)
-    //console.log("cursorX is: " + cursorX)
+    //aconsole.log("cursorX is: " + cursorX)
     //console.log("cursorY is: " + cursorY)
     //console.log("playerX is: " + playerX)
     //console.log("playerY is: " + playerY)
@@ -27,6 +27,8 @@ function fireBullet(e)
     //console.log("localX is: " + localX)
     //console.log("globalX is: " + globalX)
     //console.log("mouseData is: " + mouseData)
+    //console.log(mainScreen.width);
+    //console.log(mainScreen.height);
 
     // You move right, x increases
     // You move down, y increases
@@ -52,8 +54,8 @@ function createBullet(x, y){
     bullet.yDirection = y;
     mainScreen.addChild(bullet);
 
-    console.log("The x pos is updating " + bullet.speed * bullet.xDirection + " every frame");
-    console.log("The y pos is updating " + bullet.speed * bullet.yDirection + " every frame");
+    //console.log("The x pos is updating " + bullet.speed * bullet.xDirection + " every frame");
+    //console.log("The y pos is updating " + bullet.speed * bullet.yDirection + " every frame");
 
     return bullet;
 
@@ -67,7 +69,7 @@ function updateBullets()
         bullets[i].position.x += (bullets[i].speed * bullets[i].xDirection);
         
 
-        if (bullets[i].position.y < 0)
+        if (bullets[i].position.y < 0 || bullets[i].position.y > 2000 || bullets[i].position.x < 0 || bullets[i].position.x > 800)
         {
             mainScreen.removeChild(bullets[i]);
             bullets.splice(i,1);

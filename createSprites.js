@@ -37,6 +37,8 @@ function createSpriteByPixel(image, x, y, wTeam)
     sprite.team = wTeam;
     //console.log("I am " + sprite.team + " team!");
     sprites.push(sprite);
+    if(wTeam == "UI")
+        uiSprites.push(sprite);
 
     mainScreen.addChild(sprite);
     return sprite;
@@ -113,8 +115,10 @@ function createPlayerSheet(image)
 function createText(text, x, y, font)
 {
     text = new PIXI.Text(text);
-    text.x = app.view.width/x;
-    text.y = app.view.width/y;
+    text.x = x;
+    text.y = y;
+    console.log("rein.x is - " + rein.x);
+    console.log("rein.y is - " + rein.y);
     text.anchor.set(0.5);
     text.style = new PIXI.TextStyle({
         fontSize: 24,
@@ -123,6 +127,27 @@ function createText(text, x, y, font)
     texts.push(text);
     mainScreen.addChild(text);
     console.log('Text created!');
+    return text;
+}
+
+function activateTopText(text, time, font)
+{
+    mainScreen.removeChild(topText);
+    text = new PIXI.Text(text);
+    text.x = rein.x;
+    text.y = rein.y - 450;
+    console.log("rein.x is - " + rein.x);
+    console.log("rein.y is - " + rein.y);
+    text.anchor.set(0.5);
+    text.style = new PIXI.TextStyle({
+        fontSize: 24,
+        fontFamily: font,
+    });
+    texts.push(text);
+    mainScreen.addChild(text);
+    tt = true;
+    ttime = time;
+    uptime = time - 25;
     return text;
 }
 

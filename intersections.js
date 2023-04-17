@@ -124,7 +124,7 @@ function checkBulletCollision()
                 bullets.splice(i,1);
                 l--;
                 
-                if(sprites[j].team != "wall")
+                if(sprites[j].team == "blue" || sprites[j].team == "red")
                 {
                     sprites[j].invuln += 80;
                     sprites[j].health -= 10;
