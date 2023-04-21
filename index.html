@@ -36,6 +36,7 @@
         let topText;
         let pistol;
         let fishingRod;
+        let fsh;
         let inventoryImage;
         let currentItem;
         let sprite;
@@ -58,6 +59,7 @@
         let testArray = ['chicken', 'BAKAW!'];
         let sprites = [];
         let uiSprites = [];
+        let inventorySprites = [];
         let texts = [];
         let keys = {};
         let playerSheet = {};
@@ -123,6 +125,7 @@
             rein.down = true;
             rein.right = true;
             rein.team = "red";
+            rein.zOrder = 100;
 
             mainScreen.addChild(rein);
 
@@ -132,6 +135,7 @@
             fishingRod.type = "fishingRod";
             fishingRod.image = "images/fishingRod.png";
             fishingRod.smallImage = "images/fishingRodSmall.png";
+            fishingRod.equip = true;
 
             //Making an instance of the sprite
             //tracer = createSpriteByPixel("images/damageSpriteRed.png", 266, 1900, "red");
@@ -140,14 +144,39 @@
             pistol.type = "gun";
             pistol.image = "images/gun.png";
             pistol.smallImage = "images/gunSmall.png";
+            pistol.equip = true;
 
             water = createSpriteByPixel("images/water.png", 600, 1000, "wall");
             water.type = "water";
 
+            inventorySprites.push(createSpriteByPixel("images/currentItem.png", rein.x + 250, rein.y + 400, "UI"));
 
-            iventoryImage = createSpriteByPixel("images/inventory.png", rein.x, rein.y + 400, "UI");
+            merchant1 = createSpriteByPixel("images/merchant.png", 170, 1250, "wall");
+            merchant1.type = "merchant";
+            merchant1.name = "merchant1"
 
-            currentItem = createSpriteByPixel("images/currentItem.png", rein.x + 250, rein.y + 400, "UI");
+            let ssheet = new PIXI.BaseTexture.from("images/inventorySlot.png");
+            let lpSheet = {};
+
+            lpSheet["regularSprite"] = [
+            new PIXI.Texture(ssheet, new PIXI.Rectangle(0, 0, 32, 32))
+            ];
+
+            lpSheet["disabled"] = [
+            new PIXI.Texture(ssheet, new PIXI.Rectangle(32, 0, 32, 32))
+            ];
+
+            let i = 0;
+            let inc = -142;
+            while(i<10)
+            {
+                inventorySprites.push(createSpriteFromSheet(lpSheet, rein.x + inc, rein.y + 400, "UI"));
+                inventorySprites[inventorySprites.length-1].name = i+1;
+                inc += 32;
+                i++;
+            }
+
+            
 
             //smallGun = createSpriteByPixel("images/gunSmall.png", rein.x + 252, rein.y + 400, "UI");
 
@@ -391,10 +420,20 @@
         // function to decide what is done (if anything) when the player clicks the mouse
         function clickContext(e)
         {
-            console.log("ClickContext");
-            // I will move the item that the cat currently has equiped to inventory[0], so that can always be used
-            // to retrieve the currently equiped item
-            if(typeof inventory[0] != "undefined" && !clickLock)
+            let check = checkRelevantIntersection(rein);
+            console.log("check = " + check)
+            if(check != 0)
+            {
+                switch(check)
+                {
+                    case "merchant":
+                        merchant();
+                        break;
+                    default:
+                        // Do nothing
+                }
+            }
+            else if(typeof inventory[0] != "undefined" && !clickLock)
             {
                 if(inventory[0].name == "pistol")
                 {
@@ -408,6 +447,26 @@
             else
             {
                 topText = activateTopText("TOP TEXT", 120, "james");
+                console.dir(brim);
+            }
+            
+        }
+
+        function merchant()
+        {
+            if(inventory.length == 0)
+                topText = activateTopText("Nooooooo you don't have any fish to sell! but i do like u", 300, "james");
+            else if(typeof inventory[inventory.length-1].type == "undefined")
+                topText = activateTopText("Nooooooo you don't have any fish to sell! and I hate you", 300, "james");
+            else if(inventory[inventory.length-1].type == "fish")
+            {
+                topText = activateTopText("You sold " + inventory[inventory.length-1].name + " for " + inventory[inventory.length-1].basePrice + " cat dollars!", 300, "james");
+                inventorySprites[inventory.length-1].textures = inventorySprites[inventory.length-1].sheet.regularSprite;
+                removeInventoryItem(inventory.length-1);
+            }
+            else
+            {
+                topText = activateTopText("Nooooooo you don't have any fish to sell!", 300, "james");
             }
             
         }
@@ -415,9 +474,12 @@
         async function fish()
         {
             console.log("We are in the fish function!");
+            if(inventory.length > 10)
+                return 0;
             let i = 0;
             let l = sprites.length;
             let b = true;
+            console.dir(inventorySprites[inventory.length]);
 
             while(i<l)
             {
@@ -441,27 +503,37 @@
                         if(rand < 1)
                         {
                             topText = activateTopText("You caught a Rainbow Fish!", 200, "james");
-                            inventory.push("Rainbow Fish");
+                            fsh = createSpriteByPixel("images/rainbowFishSmall.png", getInventoryCoords(inventory.length), getInventoryCoords("y"), "UI");
+                            inventorySprites[inventory.length].textures = inventorySprites[inventory.length].sheet.disabled;
+                            inventory.push({smallChild: fsh, equip: false, name: "Rainbow Fish", basePrice: 20, type: "fish"});
                         }
                         else if(rand < 3)
                         {
                             topText = activateTopText("You caught a Catfish!", 200, "james");
-                            inventory.push("Catfish");
+                            fsh = createSpriteByPixel("images/catfishSmall.png", getInventoryCoords(inventory.length), getInventoryCoords("y"), "UI");
+                            inventorySprites[inventory.length].textures = inventorySprites[inventory.length].sheet.disabled;
+                            inventory.push({smallChild: fsh, equip: false, name: "Catfish", basePrice: 10, type: "fish"});
                         }
                         else if(rand < 5)
                         {
                             topText = activateTopText("You caught an Eel!", 200, "james");
-                            inventory.push("Eel");
+                            fsh = createSpriteByPixel("images/eelSmall.png", getInventoryCoords(inventory.length), getInventoryCoords("y"), "UI");
+                            inventorySprites[inventory.length].textures = inventorySprites[inventory.length].sheet.disabled;
+                            inventory.push({smallChild: fsh, equip: false, name: "Eel", basePrice: 8, type: "fish"});
                         }
                         else if(rand < 7)
                         {
                             topText = activateTopText("You caught a Zander!", 200, "james");
-                            inventory.push("Zander");
+                            fsh = createSpriteByPixel("images/zanderSmall.png", getInventoryCoords(inventory.length), getInventoryCoords("y"), "UI");
+                            inventorySprites[inventory.length].textures = inventorySprites[inventory.length].sheet.disabled;
+                            inventory.push({smallChild: fsh, equip: false, name: "Zander", basePrice: 6, type: "fish"});
                         }
                         else
                         {
                             topText = activateTopText("You caught a Trout!", 200, "james");
-                            inventory.push("Trout");
+                            fsh = createSpriteByPixel("images/troutSmall.png", getInventoryCoords(inventory.length), getInventoryCoords("y"), "UI");
+                            inventorySprites[inventory.length].textures = inventorySprites[inventory.length].sheet.disabled;
+                            inventory.push({smallChild: fsh, equip: false, name: "Trout", basePrice: 2, type: "fish"});
                         }
 
                         unlockMovement();
@@ -476,6 +548,12 @@
                 }
                 i++;
             }
+        }
+
+        function removeInventoryItem(x)
+        {
+            mainScreen.removeChild(inventory[x].smallChild);
+            inventory.splice(x,1);
         }
 
         function lockMovement()
@@ -499,6 +577,8 @@
         function pickup(item)
         {
             var l = inventory.length;
+            if(l > 10)
+                return 0;
             inventory.push(item);
             createSpriteByPixel(item.smallImage, getInventoryCoords(l), getInventoryCoords("y"), "UI");
             item.smallChild = uiSprites[uiSprites.length-1];

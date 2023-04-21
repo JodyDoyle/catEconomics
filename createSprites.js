@@ -44,28 +44,32 @@ function createSpriteByPixel(image, x, y, wTeam)
     return sprite;
 }
 
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////// Animated Sprite Functions ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function createAnimatedSprite(image, x, y, wTeam)
+function createSpriteFromSheet(poSheet, x, y, wTeam)
 {
-    let poSheet = createPlayerSheet(image);
-    //console.log("poSheet = " + poSheet.regularSprite);
     sprite = new PIXI.AnimatedSprite(poSheet.regularSprite);
     sprite.anchor.set(0.5);
-    sprite.animationSpeed = 0.04;
-    sprite.loop= true;
-    sprite.x = app.view.width / x;
-    sprite.y = app.view.height / y;
+    sprite.x = x;
+    sprite.y = y;
+    sprite.up = true;
+    sprite.left = true;
+    sprite.down = true;
+    sprite.right = true;
     sprite.health = 100;
     sprite.invuln = 0;
     sprite.team = wTeam;
     sprite.sheet = poSheet;
+    //console.log("I am " + sprite.team + " team!");
     sprites.push(sprite);
+    if(wTeam == "UI")
+        uiSprites.push(sprite);
 
     mainScreen.addChild(sprite);
-    sprite.play();
     return sprite;
 }
 

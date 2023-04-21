@@ -101,7 +101,7 @@ function changeWeapon()
     if(!switchedWeapons)
     {
         // 1
-        if(keys["49"]) { // && is actually a weapon
+        if(keys["49"]) {
             swapWeapons(1);
         }
         // 2
@@ -149,7 +149,7 @@ function changeWeapon()
 
 function swapWeapons(k)
 {
-    if(k >= inventory.length)
+    if(k >= inventory.length || !inventory[k].equip)
         return 0;
     
     switchedWeapons = true;

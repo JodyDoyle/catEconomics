@@ -101,6 +101,24 @@ function anyIntersect(player)
     }
 }
 
+function checkRelevantIntersection(player)
+{
+    let i = 0;
+    let l = sprites.length;
+    let b = true;
+
+    while(i<l)
+    {
+        if(spritesIntersect(player,sprites[i]))
+        {
+            if(sprites[i].type == "merchant")
+                return sprites[i].type;
+        }
+        i++;
+    }
+    return 0;
+}
+
 function checkBulletCollision()
 {
     let i = 0;
