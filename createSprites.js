@@ -134,6 +134,27 @@ function createText(text, x, y, font)
     return text;
 }
 
+function createUIText(text, x, y, font, textName)
+{
+    mainScreen.removeChild(textName);
+    text = new PIXI.Text(text);
+    text.x = x;
+    text.y = y;
+    console.log("rein.x is - " + rein.x);
+    console.log("rein.y is - " + rein.y);
+    text.anchor.set(0.5);
+    text.style = new PIXI.TextStyle({
+        fontSize: 24,
+        fontFamily: font,
+    });
+    text.team = "UI";
+    uiSprites.push(text);
+    texts.push(text);
+    mainScreen.addChild(text);
+    console.log('Text created!');
+    return text;
+}
+
 function activateTopText(text, time, font)
 {
     mainScreen.removeChild(topText);

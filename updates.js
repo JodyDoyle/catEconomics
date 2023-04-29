@@ -1,15 +1,17 @@
-function doUpdates()
+async function doUpdates()
 {
+    
+    updateUIElements();
     if(tt)
     {
         updateText();
     }
+    
     updateBullets();
-    anyIntersect(rein);
     checkBulletCollision();
     updateInvuln();
-    updateUIElements();
     changeWeapon();
+    anyIntersect(rein);
     //I will go through all the sprites and the ones that are team ui I will move along with the player (rein)
 }
 
@@ -72,28 +74,34 @@ function updateUIElements()
 {
     let i = 0;
     let l = uiSprites.length;
-
+    //console.log("UI function: moved = " + moved);
     while(i<l)
     {
         // W
         if(keys["87"] && rein.up) {
+            //console.log("And here's the proof!")
+            //console.log("We pressed W and rein.up is: " + rein.up);
             uiSprites[i].y -= playerSpeed;
         }
         // A
         if(keys["65"] && rein.left) {
+            //console.log("We pressed A and rein.left is: " + rein.left);
             uiSprites[i].x -= playerSpeed;
         }
         // S
         if(keys["83"] && rein.down) {
+            //console.log("We pressed S and rein.down is: " + rein.down);
             uiSprites[i].y += playerSpeed;
         }
         // D
         if(keys["68"] && rein.right) {
+            //console.log("We pressed D and rein.left is: " + rein.down);
             uiSprites[i].x += playerSpeed;
         }
 
         i++;
     }
+    
 }
 
 function changeWeapon()
@@ -159,4 +167,10 @@ function swapWeapons(k)
     inventory[k].smallChild.x = tempx;
 
     [inventory[0], inventory[k]] = [inventory[k], inventory[0]]; //Swaps the elements at the given indexes for the inventory array
+}
+
+function updateMoney(x)
+{
+    money += x
+    moneyText = createUIText("X " + money, rein.x - 300, rein.y + 400, "james", moneyText);
 }

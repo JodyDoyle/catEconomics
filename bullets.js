@@ -69,7 +69,7 @@ function updateBullets()
         bullets[i].position.x += (bullets[i].speed * bullets[i].xDirection);
         
 
-        if (bullets[i].position.y < 0 || bullets[i].position.y > 2000 || bullets[i].position.x < 0 || bullets[i].position.x > 800)
+        if (bullets[i].position.y < 0 || bullets[i].position.y > app.view.height || bullets[i].position.x < 0 || bullets[i].position.x > app.view.width)
         {
             mainScreen.removeChild(bullets[i]);
             bullets.splice(i,1);

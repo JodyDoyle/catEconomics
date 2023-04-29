@@ -22,6 +22,8 @@
         //let omenSheet = createPlayerSheet("images/dpsSheetBlue.png");
         //let currentHealth;
         let app;
+        let c = 0;
+        let framee = 0;
         let b = true;
         let tt = false;
         let clickLock = false;
@@ -34,11 +36,13 @@
         let ana;
         let tracer;
         let topText;
+        let moneyText;
         let pistol;
         let fishingRod;
         let fsh;
         let inventoryImage;
         let currentItem;
+        let coinSprite;
         let sprite;
         let vWall1;
         let vWall2;
@@ -55,6 +59,10 @@
         let vWall9;
         let vWall10;
         let water;
+        let blueMerchantMood;
+        let neonPinkMerchantMood;
+        let curmer;
+        let selectingFish = false;
         let inventory = [];
         let testArray = ['chicken', 'BAKAW!'];
         let sprites = [];
@@ -64,10 +72,13 @@
         let keys = {};
         let playerSheet = {};
         let bullets = [];
+        let prevMovement = [];
         let bulletSpeed = 6;
-        let playerSpeed = 3;
+        let playerSpeed = 5;
+        let money = 0;
         let collisionCheck = 0;
         let uptime;
+        let moved = false;
         let wait = false;
         let switchedWeapons = false;
         let playerTeam = "red" //This will update at the start of the game depending on which team the player is on
@@ -75,7 +86,7 @@
         window.onload = function () {
             app = new PIXI.Application(
                 {
-                    width: 800,
+                    width: 1710,
                     height: 2000,
                     backgroundColor: 0xff99df
                 }
@@ -96,7 +107,7 @@
             ////////// Okay so I need to change this so that it calls a function that gathers context and chooses an appropriate action e.g. /////////////////////
             ///////// picking up a fish if I am close to the lake or firing a bullet if I have a gun /////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            document.querySelector("#gameDiv").addEventListener("pointerdown", clickContext); //////////////////////////////////////////////////////////////////////
+            document.querySelector("#gameDiv").addEventListener("pointerdown", clickContext); ////////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             //mainScreen.on('mousedown', fireBullet);
@@ -104,22 +115,22 @@
             //Making an instance of the sprite
             
 
-            brim = createAnimatedSpriteByPixel("images/tankSheetBlue.png", 400, 1750, "blue");
+            //brim = createAnimatedSpriteByPixel("images/tankSheetBlue.png", 400, 1750, "blue");
 
             //Making an instance of the sprite
-            reyna = createAnimatedSpriteByPixel("images/supportSheetBlue.png", 266, 1700, "blue");
+            //reyna = createAnimatedSpriteByPixel("images/supportSheetBlue.png", 266, 1700, "blue");
             //reyna.name = "reyna";
             //reyna = createSprite("images/supportSpriteBlue.png", 3, 4, "blue");
             //reyna.setTexture = "images/supportSpriteRed.png"
 
             //Making an instance of the sprite
-            omen = createAnimatedSpriteByPixel("images/damageSheetBlue.png", 600, 1700, "blue");
+            //omen = createAnimatedSpriteByPixel("images/damageSheetBlue.png", 600, 1700, "blue");
 
             //Making an instance of the sprite
             rein = new PIXI.Sprite.from("images/tankSpriteRed.png");
             rein.anchor.set(0.5);
             rein.x = 400;
-            rein.y = 1850;
+            rein.y = 1800;
             rein.up = true;
             rein.left = true;
             rein.down = true;
@@ -149,11 +160,32 @@
             water = createSpriteByPixel("images/water.png", 600, 1000, "wall");
             water.type = "water";
 
-            inventorySprites.push(createSpriteByPixel("images/currentItem.png", rein.x + 250, rein.y + 400, "UI"));
+            
 
-            merchant1 = createSpriteByPixel("images/merchant.png", 170, 1250, "wall");
+            merchant1 = createSpriteByPixel("images/regularMerchant.png", 170, 1250, "wall");
             merchant1.type = "merchant";
             merchant1.name = "merchant1"
+
+            merchant2 = createSpriteByPixel("images/blueMerchant.png", 170, 1450, "wall");
+            merchant2.type = "merchant";
+            merchant2.name = "merchant2"
+
+            merchant3 = createSpriteByPixel("images/neonPinkMerchant.png", 170, 1050, "wall");
+            merchant3.type = "merchant";
+            merchant3.name = "merchant3"
+
+
+            setMerchantMoods();
+            console.log(blueMerchantMood);
+
+            /////////////////////////////// Do the UI Sprites last so they end up on top //////////////////////////////////////////
+
+
+            inventorySprites.push(createSpriteByPixel("images/currentItem.png", rein.x + 250, rein.y + 400, "UI"));
+
+            coinSprite = (createSpriteByPixel("images/coin.png", rein.x - 350, rein.y + 400, "UI"));
+
+            moneyText = createUIText("X " + money, rein.x - 300, rein.y + 400, "james", moneyText);
 
             let ssheet = new PIXI.BaseTexture.from("images/inventorySlot.png");
             let lpSheet = {};
@@ -166,8 +198,17 @@
             new PIXI.Texture(ssheet, new PIXI.Rectangle(32, 0, 32, 32))
             ];
 
+            lpSheet["selectable"] = [
+            new PIXI.Texture(ssheet, new PIXI.Rectangle(64,0,32,32))
+            ];
+
+            lpSheet["unselectable"] = [
+            new PIXI.Texture(ssheet, new PIXI.Rectangle(96,0,32,32))
+            ];
+
             let i = 0;
             let inc = -142;
+            //console.log(inventorySprites.length);
             while(i<10)
             {
                 inventorySprites.push(createSpriteFromSheet(lpSheet, rein.x + inc, rein.y + 400, "UI"));
@@ -176,36 +217,10 @@
                 i++;
             }
 
+            console.log("App width = " + app.view.width);
+            console.log("App height = " + app.view.height);
+
             
-
-            //smallGun = createSpriteByPixel("images/gunSmall.png", rein.x + 252, rein.y + 400, "UI");
-
-
-
-            /*
-            vWall1 = createSpriteByPixel("images/verticalwall.png", 180, 492, "wall");
-            vWall2 = createSpriteByPixel("images/verticalwall.png", 640, 492, "wall");
-
-            hWall1 = createSpriteByPixel("images/horizontalWall.png", 253, 192, "wall");
-            hWall2 = createSpriteByPixel("images/horizontalWall.png", 566, 192, "wall");
-
-            hWall3 = createSpriteByPixel("images/horizontalWall120.png", 120, 242, "wall");
-            hWall4 = createSpriteByPixel("images/horizontalWall120.png", 699, 242, "wall");
-
-            vWall3 = createSpriteByPixel("images/verticalWall.png", 180, 1808, "wall");
-            vWall4 = createSpriteByPixel("images/verticalWall.png", 640, 1808, "wall");
-
-            vWall5 = createSpriteByPixel("images/verticalWall.png", 180, 1400, "wall");
-            vWall6 = createSpriteByPixel("images/verticalWall.png", 640, 1400, "wall");
-
-            vWall7 = createSpriteByPixel("images/verticalWall.png", 180, 900, "wall");
-            vWall8 = createSpriteByPixel("images/verticalWall.png", 640, 900, "wall");
-            */
-
-            //vWall9 = createSpriteByPixel("images/verticalWall.png", 180, 400, "wall");
-            //vWall10 = createSpriteByPixel("images/verticalWall.png", 640, 400, "wall");
-
-            //Keyboard event handlers
             window.addEventListener("keydown", keysDown);
             window.addEventListener("keyup", keysUp);
 
@@ -230,37 +245,51 @@
         }
 
         function keysUp(e) {
-            //console.log(e.keycode);
+            //wwconsole.log(e.keycode);
 
             keys[e.keyCode] = false;
 
         }
 
 
+
         function gameLoop() {
+            
 
             //world.position.set(app.screen.width/2, app.screen.height/2);
             //world.scale.set(whatever you want)
             //world.rotation = some_rotation
 
             //console.log("rein.up = " + rein.up);
-
+            //framee++;
+            //console.log("Frame" + framee);
+            moved = false;
             // W
             if(keys["87"] && rein.up) {
+                //console.log("I forlayed the W button and rein.up is: " + rein.up);
                 rein.y -= playerSpeed;
+                moved = true;
+                //console.log("Movement function: moved = " + moved);
             }
             // A
             if(keys["65"] && rein.left) {
+                //console.log("I forlayed the A button and rein.left is: " + rein.left);
                 rein.x -= playerSpeed;
+                moved = true;
             }
             // S
             if(keys["83"] && rein.down) {
+                //console.log("I forlayed the S button and rein.down is: " + rein.down);
                 rein.y += playerSpeed;
+                moved = true;
             }
             // D
             if(keys["68"] && rein.right) {
+                //console.log("I forlayed the D button and rein.right is: " + rein.right);
                 rein.x += playerSpeed;
+                moved = true;
             }
+            
             //P
             if(keys["80"])
             {
@@ -268,8 +297,8 @@
                 //console.log("bBox.y = " + brim.getBounds().y);
                 //console.log("bBox.width = " + brim.getBounds().width);
                 //console.log("bBox.height = " + brim.getBounds().height);
-                console.log("Mainscreen.position.x = " + mainScreen.position.x)
-                console.log("Mainscreen.position.y = " + mainScreen.position.y)
+                //console.log("Mainscreen.position.x = " + mainScreen.position.x)
+                //console.log("Mainscreen.position.y = " + mainScreen.position.y)
                 console.log("rein.x = " + rein.x)
                 console.log("rein.y = " + rein.y)
             }
@@ -302,41 +331,22 @@
             }
             //console.log("Gameloop");
             //console.log("rein position 1: " + rein.y);
+            doUpdates();
             
-            mainScreen.position.x = (rein.x - app.view.width / 2) * -1;
-            mainScreen.position.y = (rein.y - app.view.width / 2) * -1;
-            
+            mainScreen.position.x = -200 + (rein.x - app.view.width / 2) * -1;
+            mainScreen.position.y = -600 + (rein.y - app.view.height / 2) * -1;
             
             //mainScreen.pivot.x = rein.x;
-            //mainScreen.pivot.y = rein.y;
+            //mainScreewn.pivot.y = rein.y;
 
             //console.log("rein position 2: " + rein.y);
+            
+            
 
-            doUpdates();
+            
         }
 
-        function disableMovement(check)
-        {
-            switch(check)
-            {
-                case 1:
-                    rein.left = false;
-                    rein.x += collisionCheck;
-                    break;
-                case 2:
-                    rein.right = false;
-                    rein.x -= collisionCheck;
-                    break;
-                case 3:
-                    rein.up = false;
-                    rein.y += collisionCheck;
-                    break;
-                case 4:
-                    rein.down = false;
-                    rein.y -= collisionCheck;
-            }
-        }
-
+        
         function changeFlag(flag)
         {
             if(flag == true)
@@ -353,7 +363,7 @@
         {
             let xadjustment = 0;
             let yadjustment = 0;
-            // W
+            /* W
             if(keys["87"] && rein.up) {
                 yadjustment += playerSpeed;
             }
@@ -369,6 +379,7 @@
             if(keys["68"] && rein.right) {
                 xadjustment -= playerSpeed;
             }
+            */
             switch(x)
             {
                 case "y": 
@@ -420,14 +431,39 @@
         // function to decide what is done (if anything) when the player clicks the mouse
         function clickContext(e)
         {
+            if(selectingFish)
+            {
+                let x = getInventoryClick(e);
+                unlockMovement();
+                if(x>0)
+                {
+                    switch(curmer.name)
+                    {
+                        case "merchant1":
+                            regularMerchant(x);
+                            break;
+                        case "merchant2":
+                            blueMerchant(x);
+                            break;
+                        case "merchant3":
+                            neonPinkMerchant(x);
+                            break;
+                    }
+                }
+                unselectFish();
+                
+            }
+            else{
+
             let check = checkRelevantIntersection(rein);
-            console.log("check = " + check)
+            //console.log("check = " + check)
             if(check != 0)
             {
-                switch(check)
+                switch(check.type)
                 {
                     case "merchant":
-                        merchant();
+                        curmer = check;
+                        merchant(check);
                         break;
                     default:
                         // Do nothing
@@ -446,29 +482,41 @@
             }
             else
             {
-                topText = activateTopText("TOP TEXT", 120, "james");
-                console.dir(brim);
+                topText = activateTopText("TOP TEXT " + c, 120, "james");
+                c++
+                let raz = Math.random() * 800000000000;
+                console.log("sigmoid(" + raz + ") is " + sigmoid(raz));
+                console.log(raz + " % 2 = " + raz % 2);
+                console.log("sigmoid(8) is " + sigmoid(8));
+                console.log("sigmoid(-1) is " + sigmoid(-1.5));
+                console.log("sigmoid(0) is " + sigmoid(0));
+                console.log("sigmoid(1) is " + sigmoid(1));
+                console.log("sigmoid(0.4) is " + sigmoid(0.4));
+                console.log(blueMerchantMood);
+                console.log("e.clientX is: " + e.clientX);
+                console.log("e.clientY is: " + e.clientY);
+                console.log("inventorySprites[1].getGlobalPosition().x is: " + inventorySprites[1].getGlobalPosition().x);
+                console.log("inventorySprites[1].getGlobalPosition().y is: " + inventorySprites[1].getGlobalPosition().y);
+                console.dir();
+                //console.dir(brim);
             }
-            
+            }
         }
 
-        function merchant()
+        function getInventoryClick(e)
         {
-            if(inventory.length == 0)
-                topText = activateTopText("Nooooooo you don't have any fish to sell! but i do like u", 300, "james");
-            else if(typeof inventory[inventory.length-1].type == "undefined")
-                topText = activateTopText("Nooooooo you don't have any fish to sell! and I hate you", 300, "james");
-            else if(inventory[inventory.length-1].type == "fish")
+            let i = 1;
+            while(i<inventorySprites.length)
             {
-                topText = activateTopText("You sold " + inventory[inventory.length-1].name + " for " + inventory[inventory.length-1].basePrice + " cat dollars!", 300, "james");
-                inventorySprites[inventory.length-1].textures = inventorySprites[inventory.length-1].sheet.regularSprite;
-                removeInventoryItem(inventory.length-1);
+                if(e.clientX < inventorySprites[i].getBounds().right + 10 &&
+                   e.clientX > inventorySprites[i].getBounds().left + 10 &&
+                   e.clientY > inventorySprites[i].getBounds().top + 10 &&
+                   e.clientY < inventorySprites[i].getBounds().bottom + 10)
+                    return i;
+
+                i++;
             }
-            else
-            {
-                topText = activateTopText("Nooooooo you don't have any fish to sell!", 300, "james");
-            }
-            
+            return -1;
         }
 
         async function fish()
@@ -550,14 +598,35 @@
             }
         }
 
+        function unselectFish()
+        {
+            selectingFish = false;
+            let i = 1;
+            while(i<inventory.length)
+            {
+                if(inventory[i].equip)
+                    inventorySprites[i].textures = inventorySprites[i].sheet.regularSprite;
+                else
+                    inventorySprites[i].textures = inventorySprites[i].sheet.disabled;
+                i++;
+            }
+            // Change the colours of the inventory back
+        }
+
         function removeInventoryItem(x)
         {
             mainScreen.removeChild(inventory[x].smallChild);
             inventory.splice(x,1);
+            while(x<inventory.length)
+            {
+                inventory[x].smallChild.x -=32;
+                x++;
+            }
         }
 
         function lockMovement()
         {
+            prevMovement = [rein.up, rein.down, rein.left, rein.right];
             rein.up = false;
             rein.down = false;
             rein.left = false;
@@ -567,10 +636,10 @@
 
         function unlockMovement()
         {
-            rein.up = true;
-            rein.down = true;
-            rein.left = true;
-            rein.right = true;
+            rein.up = prevMovement[0];
+            rein.down = prevMovement[1];
+            rein.left = prevMovement[2];
+            rein.right = prevMovement[3];
             clickLock = false;
         }
 
@@ -586,7 +655,7 @@
             //console.log("I have " + inventory[0].name + " in my inventory now!");
         }
 
-       
+        
 
     </script>
 </head>
@@ -606,6 +675,9 @@
     </script>
 
     <script src="updates.js">
+    </script>
+
+    <script src="merchants.js">
     </script>
     
 </body>

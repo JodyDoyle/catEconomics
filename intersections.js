@@ -101,18 +101,66 @@ function anyIntersect(player)
     }
 }
 
+function disableMovement(check)
+{
+    switch(check)
+    {
+        case 1:
+            rein.left = false;
+            rein.x += collisionCheck;
+            break;
+        case 2:
+            rein.right = false;
+            rein.x -= collisionCheck;
+            break;
+        case 3:
+            rein.up = false;
+            rein.y += collisionCheck;
+            break;
+        case 4:
+            rein.down = false;
+            rein.y -= collisionCheck;
+    }
+    collisionCheckUIElements(check);
+}
+
+function collisionCheckUIElements(check)
+{
+    let i = 0;
+    let l = uiSprites.length;
+    //console.log("UI function: moved = " + moved);
+    while(i<l)
+    {
+        switch(check)
+        {
+            case 1:
+                uiSprites[i].x += collisionCheck;
+                break;
+            case 2:
+                uiSprites[i].x -= collisionCheck;
+                break;
+            case 3:
+                uiSprites[i].y += collisionCheck;
+                break;
+            case 4:
+                uiSprites[i].y -= collisionCheck;
+        }
+
+        i++;
+    }
+}
+
 function checkRelevantIntersection(player)
 {
     let i = 0;
     let l = sprites.length;
-    let b = true;
 
     while(i<l)
     {
         if(spritesIntersect(player,sprites[i]))
         {
             if(sprites[i].type == "merchant")
-                return sprites[i].type;
+                return sprites[i];
         }
         i++;
     }
