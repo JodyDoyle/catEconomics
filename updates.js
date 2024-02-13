@@ -1,7 +1,7 @@
 async function doUpdates()
 {
     
-    updateUIElements();
+    updateUIElements(playerSpeed);
     if(tt)
     {
         updateText();
@@ -12,6 +12,7 @@ async function doUpdates()
     updateInvuln();
     changeWeapon();
     anyIntersect(rein);
+    updateCooldowns();
     //I will go through all the sprites and the ones that are team ui I will move along with the player (rein)
 }
 
@@ -70,33 +71,33 @@ function updateText()
     }
 }
 
-function updateUIElements()
+function updateUIElements(ps)
 {
     let i = 0;
     let l = uiSprites.length;
-    //console.log("UI function: moved = " + moved);
+    //console.log("The playerSpeed is (UI) " + ps);
     while(i<l)
     {
         // W
         if(keys["87"] && rein.up) {
             //console.log("And here's the proof!")
             //console.log("We pressed W and rein.up is: " + rein.up);
-            uiSprites[i].y -= playerSpeed;
+            uiSprites[i].y -= ps;
         }
         // A
         if(keys["65"] && rein.left) {
             //console.log("We pressed A and rein.left is: " + rein.left);
-            uiSprites[i].x -= playerSpeed;
+            uiSprites[i].x -= ps;
         }
         // S
         if(keys["83"] && rein.down) {
             //console.log("We pressed S and rein.down is: " + rein.down);
-            uiSprites[i].y += playerSpeed;
+            uiSprites[i].y += ps;
         }
         // D
         if(keys["68"] && rein.right) {
-            //console.log("We pressed D and rein.left is: " + rein.down);
-            uiSprites[i].x += playerSpeed;
+            //console.log("We pressed D and rein.right is: " + rein.right);
+            uiSprites[i].x += ps;
         }
 
         i++;
@@ -173,4 +174,18 @@ function updateMoney(x)
 {
     money += x
     moneyText = createUIText("X " + money, rein.x - 300, rein.y + 400, "james", moneyText);
+}
+
+function updateCooldowns()
+{
+    if(dashCD>0)
+    {
+        dashCD--;
+        if(dashSpeedReduction > 0)
+        {
+            dashSpeedReduction--;
+            console.log("We are decrementing the playerSpeed by 20 now!");
+            playerSpeed -= 20;
+        }
+    }
 }

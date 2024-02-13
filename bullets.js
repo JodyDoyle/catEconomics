@@ -34,7 +34,14 @@ function fireBullet(e)
     // You move down, y increases
 
     let bullet = createBullet(Xratio, Yratio);
+    console.log("I am a cartoonnnnnn");
+    
     bullets.push(bullet);
+    console.log("The xDirection of the bullet is: " + bullets[0].xDirection);
+    console.log("There are " + bullets.length + " bullets atm");
+    
+    bulletCount++;
+    //let leng = bullets.length;
 }
 
 function display(event) {
@@ -43,7 +50,7 @@ function display(event) {
  }
 
 function createBullet(x, y){
-
+    console.log("The xDirection of the bullet should be: " + x);
     let bullet = new PIXI.Sprite.from("images/bullet.png");
     bullet.anchor.set(0.5);
     bullet.x = rein.x;
@@ -52,7 +59,9 @@ function createBullet(x, y){
     bullet.team = playerTeam;
     bullet.xDirection = x;
     bullet.yDirection = y;
+    //testArray.push("Rooster");
     mainScreen.addChild(bullet);
+    //console.log("I am a cartoon");
 
     //console.log("The x pos is updating " + bullet.speed * bullet.xDirection + " every frame");
     //console.log("The y pos is updating " + bullet.speed * bullet.yDirection + " every frame");
@@ -67,10 +76,13 @@ function updateBullets()
     {
         bullets[i].position.y += (bullets[i].speed * bullets[i].yDirection);
         bullets[i].position.x += (bullets[i].speed * bullets[i].xDirection);
+        console.log("We are updating a bullet!");
+        //bullets.push("Balls");
         
 
         if (bullets[i].position.y < 0 || bullets[i].position.y > app.view.height || bullets[i].position.x < 0 || bullets[i].position.x > app.view.width)
         {
+            console.log("We are removing a bullet!");
             mainScreen.removeChild(bullets[i]);
             bullets.splice(i,1);
         }

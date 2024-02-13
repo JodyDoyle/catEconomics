@@ -21,6 +21,8 @@
         //let reynaSheet = createPlayerSheet("images/tankSheetBlue.png");
         //let omenSheet = createPlayerSheet("images/dpsSheetBlue.png");
         //let currentHealth;
+        let bullets = [];
+        let bulletCount = 0;
         let app;
         let c = 0;
         let framee = 0;
@@ -39,6 +41,9 @@
         let moneyText;
         let pistol;
         let fishingRod;
+        let dagger;
+        let greenPotion;
+        let redPotion;
         let fsh;
         let inventoryImage;
         let currentItem;
@@ -71,9 +76,8 @@
         let texts = [];
         let keys = {};
         let playerSheet = {};
-        let bullets = [];
         let prevMovement = [];
-        let bulletSpeed = 6;
+        let bulletSpeed = 12;
         let playerSpeed = 5;
         let money = 0;
         let collisionCheck = 0;
@@ -82,15 +86,18 @@
         let wait = false;
         let switchedWeapons = false;
         let playerTeam = "red" //This will update at the start of the game depending on which team the player is on
+        let dashCD = 0;
+        let dashSpeedReduction = 0;
 
         window.onload = function () {
             app = new PIXI.Application(
                 {
-                    width: 1710,
-                    height: 2000,
+                    width: 1664,
+                    height: 2048,
                     backgroundColor: 0xff99df
                 }
             );
+            console.dir(app);
 
             
 
@@ -102,6 +109,27 @@
             app.stage.addChild(mainScreen);
 
             //currentHealth = createText("100/100", 2, 100, "james");
+            let i = 0;
+            let j = 0;
+            let grass = new PIXI.Sprite.from("images/greyFloor.png");
+            while(i < app.view.width)
+            {
+                while(j < app.view.height)
+                {
+                    grass = createSpriteByPixel("images/greyFloor.png", i, j, "background");
+                    j+=64;
+                    //console.log(j);
+                }
+                j = 0;
+                i+=64;
+            }
+            grass = createSpriteByPixel("images/greyFloor.png", i, j, "background");
+            
+            grass.anchor.set(0.5);
+            grass.x = 0;
+            grass.y = 0;
+            
+            mainScreen.addChild(grass);
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             ////////// Okay so I need to change this so that it calls a function that gathers context and chooses an appropriate action e.g. /////////////////////
@@ -118,7 +146,7 @@
             //brim = createAnimatedSpriteByPixel("images/tankSheetBlue.png", 400, 1750, "blue");
 
             //Making an instance of the sprite
-            //reyna = createAnimatedSpriteByPixel("images/supportSheetBlue.png", 266, 1700, "blue");
+            reyna = createAnimatedSpriteByPixel("images/supportSheetBlue.png", 266, 1700, "blue");
             //reyna.name = "reyna";
             //reyna = createSprite("images/supportSpriteBlue.png", 3, 4, "blue");
             //reyna.setTexture = "images/supportSpriteRed.png"
@@ -157,11 +185,27 @@
             pistol.smallImage = "images/gunSmall.png";
             pistol.equip = true;
 
+            //Making the dagger
+            dagger = createSpriteByPixel("images/dagger.png", 850, 1900, "pickup");
+            dagger.name = "dagger";
+            dagger.type = "melee";
+            dagger.image = "images/dagger.png";
+            dagger.smallImage = "images/daggerSmall.png";
+            dagger.equip = true;
+
+            greenPotion = createSpriteByPixel("images/greenPotion.png", 1100, 1900, "pickup");
+            greenPotion.name = "greenPotion";
+            greenPotion.type = "potion";
+            greenPotion.image = "images/greenPotion.png";
+            greenPotion.smallImage = "images/greenPotionSmall.png";
+            greenPotion.equip = true;
+
+            /*
             water = createSpriteByPixel("images/water.png", 600, 1000, "wall");
             water.type = "water";
 
+            let conBox = createContextBox(970, 1250, 3);
             
-
             merchant1 = createSpriteByPixel("images/regularMerchant.png", 170, 1250, "wall");
             merchant1.type = "merchant";
             merchant1.name = "merchant1"
@@ -173,10 +217,11 @@
             merchant3 = createSpriteByPixel("images/neonPinkMerchant.png", 170, 1050, "wall");
             merchant3.type = "merchant";
             merchant3.name = "merchant3"
-
+            
 
             setMerchantMoods();
             console.log(blueMerchantMood);
+            */
 
             /////////////////////////////// Do the UI Sprites last so they end up on top //////////////////////////////////////////
 
@@ -206,7 +251,7 @@
             new PIXI.Texture(ssheet, new PIXI.Rectangle(96,0,32,32))
             ];
 
-            let i = 0;
+            i = 0;
             let inc = -142;
             //console.log(inventorySprites.length);
             while(i<10)
@@ -264,6 +309,27 @@
             //framee++;
             //console.log("Frame" + framee);
             moved = false;
+            //console.log("The playerSpeed is: (Movement) " + playerSpeed);
+            //E
+            if(keys["69"])
+            {
+                /*console.log("aBox.y = " + rein.getBounds().y);
+                let i = 0;
+                let l = inventory.length;
+                while(i<l)
+                {
+                    console.log("inventory " + i + " is " + inventory[i]);
+                    i++;
+                }
+                */
+               console.log("dashCD is: " + dashCD);
+               if(inventory[0].type == 'melee' && dashCD == 0)
+               {
+                  playerSpeed += 100;
+                  dashCD += 240;
+                  dashSpeedReduction += 5;
+               }
+            }
             // W
             if(keys["87"] && rein.up) {
                 //console.log("I forlayed the W button and rein.up is: " + rein.up);
@@ -301,18 +367,6 @@
                 //console.log("Mainscreen.position.y = " + mainScreen.position.y)
                 console.log("rein.x = " + rein.x)
                 console.log("rein.y = " + rein.y)
-            }
-            //E
-            if(keys["69"])
-            {
-                //console.log("aBox.y = " + rein.getBounds().y);
-                let i = 0;
-                let l = inventory.length;
-                while(i<l)
-                {
-                    console.log("inventory " + i + " is " + inventory[i]);
-                    i++;
-                }
             }
             //Q
             if(keys["81"])
@@ -471,13 +525,23 @@
             }
             else if(typeof inventory[0] != "undefined" && !clickLock)
             {
+                console.log("I am a cartoon");
                 if(inventory[0].name == "pistol")
                 {
+                    console.log("SOS please someoen help me");
                     fireBullet(e);
                 }
                 else if(inventory[0].type == "fishingRod")
                 {
                     fish();
+                }
+                else if(inventory[0].type == "melee")
+                {
+                    swing(e);
+                }
+                else if(inventory[0].type == "potion")
+                {
+                    usePotion(e);
                 }
             }
             else
@@ -485,7 +549,7 @@
                 topText = activateTopText("TOP TEXT " + c, 120, "james");
                 c++
                 let raz = Math.random() * 800000000000;
-                console.log("sigmoid(" + raz + ") is " + sigmoid(raz));
+                /*console.log("sigmoid(" + raz + ") is " + sigmoid(raz));
                 console.log(raz + " % 2 = " + raz % 2);
                 console.log("sigmoid(8) is " + sigmoid(8));
                 console.log("sigmoid(-1) is " + sigmoid(-1.5));
@@ -498,6 +562,7 @@
                 console.log("inventorySprites[1].getGlobalPosition().x is: " + inventorySprites[1].getGlobalPosition().x);
                 console.log("inventorySprites[1].getGlobalPosition().y is: " + inventorySprites[1].getGlobalPosition().y);
                 console.dir();
+                */
                 //console.dir(brim);
             }
             }
@@ -678,6 +743,12 @@
     </script>
 
     <script src="merchants.js">
+    </script>
+
+    <script src="melee.js">
+    </script>
+
+    <script src="potions.js">
     </script>
     
 </body>

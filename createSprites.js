@@ -16,7 +16,8 @@ function createSprite(image, x, y, wTeam)
     sprite.invuln = 0;
     sprite.team = wTeam;
     console.log("I am " + sprite.team + " team!");
-    sprites.push(sprite);
+    if(wTeam != "background")
+        sprites.push(sprite);
 
     mainScreen.addChild(sprite);
     return sprite;
@@ -36,7 +37,8 @@ function createSpriteByPixel(image, x, y, wTeam)
     sprite.invuln = 0;
     sprite.team = wTeam;
     //console.log("I am " + sprite.team + " team!");
-    sprites.push(sprite);
+    if(wTeam != "background")
+        sprites.push(sprite);
     if(wTeam == "UI")
         uiSprites.push(sprite);
 
@@ -76,6 +78,7 @@ function createSpriteFromSheet(poSheet, x, y, wTeam)
 function createAnimatedSpriteByPixel(image, x, y, wTeam)
 {
     let poSheet = createPlayerSheet(image);
+    console.log(typeof(poSheet.regularSprite))
     //console.log("poSheet = " + image.naturalHeight);
     sprite = new PIXI.AnimatedSprite(poSheet.regularSprite);
     sprite.anchor.set(0.5);
@@ -110,6 +113,38 @@ function createPlayerSheet(image)
         new PIXI.Texture(ssheet, new PIXI.Rectangle(0 * w, 0, w, h))
     ];
     return pSheet;
+}
+
+function createContextBox(x, y, items)
+{
+    let ssheet = new PIXI.BaseTexture.from("images/contextBox.png");
+    let w = 196;
+    let h = 64;
+    let hh = 0;
+    let poSheet = [];
+    let psheet = createPlayerSheet("images/contextBox.png");
+    let i = 0;
+    while(i<8)
+    {
+        hh = h*i + 5;
+        //console.log(hh);
+        poSheet[i] = new PIXI.Texture(ssheet, new PIXI.Rectangle(0, 0, w, hh))
+        i++;
+    }
+    
+    console.log(typeof(poSheet[items]))
+    
+    sprite = new PIXI.AnimatedSprite(psheet.regularSprite);
+    sprite.anchor.set(0.5);
+    sprite.x = x;
+    sprite.y = y;
+    sprite.sheet = poSheet;
+    sprites.push(sprite);
+
+
+    mainScreen.addChild(sprite);
+    sprite.play();
+    return sprite;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

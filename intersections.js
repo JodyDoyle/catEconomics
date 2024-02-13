@@ -83,7 +83,7 @@ function anyIntersect(player)
             {
                 pickup(sprites[i]);
             }
-            else
+            else if(sprites[i].team != "background")
             {
                 disableMovement(whichIntersect(player,sprites[i]))
                 b = false;
@@ -186,7 +186,12 @@ function checkBulletCollision()
                 // Need to add invulnerability frames and deprecate health and check for death when a sprite is hit by a bullet
                 // Need to also check if the sprite is friend or foe when checking if the sprite should take damage
                 // Should probably also remove the bullet once it damaged someone
+
+                console.log("The bullet's team is " + bullets[i].team);
+                console.log("The sprite's team is " + sprites[j].team);
+
                 mainScreen.removeChild(bullets[i]);
+                console.log("We are removing a bullet because of a collision");
                 bullets.splice(i,1);
                 l--;
                 
@@ -212,6 +217,31 @@ function checkBulletCollision()
             j++;
         }
         j = 0;
+        i++;
+    }
+}
+
+
+function checkDaggerCollision(swingArc)
+{
+    let i = 0;
+    let l = sprites.length;
+
+    while(i<l)
+    {
+        if(spritesIntersect(swingArc,sprites[i]) && sprites[i].invuln <= 0 && swingArc.team != sprites[i].team)
+        {
+            if(sprites[i].team == "blue" || sprites[i].team == "red")
+            {
+                sprites[i].invuln += 80;
+                sprites[i].health -= 10;
+                //console.log((playerSheet));
+                sprites[i].textures = sprites[i].sheet.invulnerable;
+                sprites[i].play();
+                //console.log(sprites[j].health);
+                //checkForDeath(sprites[j]);
+            }
+        }
         i++;
     }
 }
